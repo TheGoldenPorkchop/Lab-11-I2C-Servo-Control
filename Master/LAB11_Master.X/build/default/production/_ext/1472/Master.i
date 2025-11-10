@@ -2400,7 +2400,7 @@ Setup:
     MOVWF PIE1
     MOVLW 0X88
     MOVWF PR2 ;Timer 2 stuff
-    MOVLW 0x80
+    MOVLW 0x00
     MOVWF ADCON1
     MOVLW 0xC0 ;Input Data sampled at the end of data output time and Standard Speed
     MOVWF SSPSTAT
@@ -2448,6 +2448,7 @@ Setup:
     PreRC EQU 0x27 ;Saves RC Data
     DidHandShake EQU 0x28 ;Did the hand shake?
     OneTimeADC EQU 0x29 ;This will make sure we only send 2 bits of data
+    DataSend EQU 0x30 ;Send to Slave
 
     MOVLW 0X00
     MOVWF TIMER_COUNT
@@ -2463,9 +2464,21 @@ Setup:
 ;-------------------------------------------------------------------------------
 ;Main Program Loop (Loops forever)
 MainLoop:
+    BSF ADCON0,1
+    GOTO ADC_CHECK
+
+ADC_CHECK:
+    BTFSC ADCON0,1
+    GOTO ADC_CHECK
+
+    MOVF ADRESH,0
+    MOVWF DataSend
     CLRF SSPBUF ;Clears buffer
-    BTFSS PORTB,0
-    GOTO MainLoop
+    ;BTFSS PORTB,0
+    ;GOTO MainLoop
+    GOTO MainSend
+
+MainSend:
 
     BSF STATUS,5 ;Bank 1
     BSF SSPCON2,0 ;Enables Start Condition
@@ -2478,7 +2491,8 @@ MainLoop:
     ;BSF SSPCON2,2 ;Initiates Stop Condition
 
     BCF STATUS, 5 ;Bank 0
-    MOVLW 0x88
+    ;MOVLW 0x88
+    MOVF DataSend,0
     MOVWF SSPBUF ;Moves Data we want
     BSF STATUS,5 ;Bank 1
     BTFSC SSPSTAT,0 ;Checks to see if the buffer is still full.
@@ -2509,381 +2523,8 @@ Interrupt:
     MOVF STATUS, 0
     MOVWF STATS_SAVE
 
-    BTFSS PIR1,5 ;RC or Timer?
-    GOTO TimerCountCheck ;Timer
-    GOTO RCSerialCheck
-
-TimerCountCheck:
-    DECFSZ TIMER_COUNT,F
-    GOTO INTERRUPT_END ; If counter not zero, exit
-    BTFSC PulseSelect,0
-    GOTO PulseWidthTime ;1
-    GOTO PulseSpaceTime ;0
-
-RCSerialCheck:
-    BCF PIE1,2 ;Disables Timer Interrupts
-    MOVF RCREG,0
-    MOVWF PreRC
-
-    MOVF PreRC,0
-    XORLW 0x24 ;$ Handshake
-    BTFSC STATUS,2
-    GOTO Dollar
-
-    MOVF PreRC,0
-    XORLW 0x23 ;# GRAB ADC Data
-    BTFSC STATUS,2
-    GOTO HashTag
-
-    MOVF PreRC,0
-    XORLW 0x21 ;! No Grab ADC Data
-    BTFSC STATUS,2
-    GOTO NoADCData
-
-    BTFSC DidHandShake,0
-    GOTO AcceptData ;1
     GOTO INTERRUPT_END
 
-Dollar:
-    MOVLW 0x24
-    MOVWF TXREG
-    BSF DidHandShake,0 ;Will Allow data to be processed in Interrupt
-    BSF DidHandShake,1 ;Send4Bytes
-    GOTO INTERRUPT_END
-
-HashTag:
-    BCF DidHandShake,0 ;Clears Dollar Hand Shake
-    BSF DidHandShake,3;# Indicator
-    GOTO INTERRUPT_END
-
-NoADCData:
-    MOVF PreRC,0
-    MOVWF TXREG
-    BCF DidHandShake,0
-    BSF DidHandShake,1 ;Send4Bytes
-    GOTO INTERRUPT_END
-
-AcceptData:
-    MOVF PreRC,0
-    XORLW 0x05
-    BTFSC STATUS,2
-    GOTO Hx05
-
-    MOVF PreRC,0
-    XORLW 0x06
-    BTFSC STATUS,2
-    GOTO Hx06
-
-    MOVF PreRC,0
-    XORLW 0x07
-    BTFSC STATUS,2
-    GOTO Hx07
-
-    MOVF PreRC,0
-    XORLW 0x08
-    BTFSC STATUS,2
-    GOTO Hx08
-
-    MOVF PreRC,0
-    XORLW 0x09
-    BTFSC STATUS,2
-    GOTO Hx09
-
-    MOVF PreRC,0
-    XORLW 0x0A
-    BTFSC STATUS,2
-    GOTO Hx0A
-
-    MOVF PreRC,0
-    XORLW 0x0B
-    BTFSC STATUS,2
-    GOTO Hx0B
-
-    MOVF PreRC,0
-    XORLW 0x0C
-    BTFSC STATUS,2
-    GOTO Hx0C
-
-    MOVF PreRC,0
-    XORLW 0x0D
-    BTFSC STATUS,2
-    GOTO Hx0D
-
-    MOVF PreRC,0
-    XORLW 0x0E
-    BTFSC STATUS,2
-    GOTO Hx0E
-
-    MOVF PreRC,0
-    XORLW 0x0F
-    BTFSC STATUS,2
-    GOTO Hx0F
-
-    MOVF PreRC,0
-    XORLW 0x10
-    BTFSC STATUS,2
-    GOTO Hx10
-
-    MOVF PreRC,0
-    XORLW 0x11
-    BTFSC STATUS,2
-    GOTO Hx11
-
-    MOVF PreRC,0
-    XORLW 0x12
-    BTFSC STATUS,2
-    GOTO Hx12
-
-    MOVF PreRC,0
-    XORLW 0x13
-    BTFSC STATUS,2
-    GOTO Hx13
-
-    MOVF PreRC,0
-    XORLW 0x14
-    BTFSC STATUS,2
-    GOTO Hx14
-
-    MOVF PreRC,0
-    XORLW 0x15
-    BTFSC STATUS,2
-    GOTO Hx15
-
-    MOVF PreRC,0
-    XORLW 0x16
-    BTFSC STATUS,2
-    GOTO Hx16
-
-    MOVF PreRC,0
-    XORLW 0x17
-    BTFSC STATUS,2
-    GOTO Hx17
-
-    MOVF PreRC,0
-    XORLW 0x18
-    BTFSC STATUS,2
-    GOTO Hx18
-
-    MOVF PreRC,0
-    XORLW 0x19
-    BTFSC STATUS,2
-    GOTO Hx19
-    GOTO INTERRUPT_END
-
-Hx05:
-    MOVLW 0x32 ;50
-    MOVWF PR2_PulseWidth
-    MOVLW 0xC3 ;195
-    MOVWF PR2_PulseSpace
-    BTFSC PulseSelect, 0
-    GOTO PulseWidthTime ;1
-    GOTO PulseSpaceTime ;0
-
-Hx06:
-    MOVLW 0x3C ;60
-    MOVWF PR2_PulseWidth
-    MOVLW 0xC2 ;194
-    MOVWF PR2_PulseSpace
-    BTFSC PulseSelect, 0
-    GOTO PulseWidthTime ;1
-    GOTO PulseSpaceTime ;0
-
-Hx07:
-    MOVLW 0x46 ;70
-    MOVWF PR2_PulseWidth
-    MOVLW 0xC1 ;193
-    MOVWF PR2_PulseSpace
-    BTFSC PulseSelect, 0
-    GOTO PulseWidthTime ;1
-    GOTO PulseSpaceTime ;0
-
-Hx08:
-    MOVLW 0x50 ;80
-    MOVWF PR2_PulseWidth
-    MOVLW 0xC0 ;192
-    MOVWF PR2_PulseSpace
-    BTFSC PulseSelect, 0
-    GOTO PulseWidthTime ;1
-    GOTO PulseSpaceTime ;0
-
-Hx09:
-    MOVLW 0x5A ;80
-    MOVWF PR2_PulseWidth
-    MOVLW 0xBF ;191
-    MOVWF PR2_PulseSpace
-    BTFSC PulseSelect, 0
-    GOTO PulseWidthTime ;1
-    GOTO PulseSpaceTime ;0
-
-Hx0A:
-    MOVLW 0x64 ;100
-    MOVWF PR2_PulseWidth
-    MOVLW 0xBE ;190
-    MOVWF PR2_PulseSpace
-    BTFSC PulseSelect, 0
-    GOTO PulseWidthTime ;1
-    GOTO PulseSpaceTime ;0
-
-Hx0B:
-    MOVLW 0x6E ;110
-    MOVWF PR2_PulseWidth
-    MOVLW 0xBD ;189
-    MOVWF PR2_PulseSpace
-    BTFSC PulseSelect, 0
-    GOTO PulseWidthTime ;1
-    GOTO PulseSpaceTime ;0
-
-Hx0C:
-    MOVLW 0x78 ;120
-    MOVWF PR2_PulseWidth
-    MOVLW 0xBC ;188
-    MOVWF PR2_PulseSpace
-    BTFSC PulseSelect, 0
-    GOTO PulseWidthTime ;1
-    GOTO PulseSpaceTime ;0
-
-Hx0D:
-    MOVLW 0x82 ;130
-    MOVWF PR2_PulseWidth
-    MOVLW 0xBB ;187
-    MOVWF PR2_PulseSpace
-    BTFSC PulseSelect, 0
-    GOTO PulseWidthTime ;1
-    GOTO PulseSpaceTime ;0
-
-Hx0E:
-    MOVLW 0x8C ;140
-    MOVWF PR2_PulseWidth
-    MOVLW 0xBA ;186
-    MOVWF PR2_PulseSpace
-    BTFSC PulseSelect, 0
-    GOTO PulseWidthTime ;1
-    GOTO PulseSpaceTime ;0
-
-Hx0F:
-    MOVLW 0x96 ;150
-    MOVWF PR2_PulseWidth
-    MOVLW 0xB9 ;185
-    MOVWF PR2_PulseSpace
-    BTFSC PulseSelect, 0
-    GOTO PulseWidthTime ;1
-    GOTO PulseSpaceTime ;0
-
-Hx10:
-    MOVLW 0xA0 ;160
-    MOVWF PR2_PulseWidth
-    MOVLW 0xB8 ;184
-    MOVWF PR2_PulseSpace
-    BTFSC PulseSelect, 0
-    GOTO PulseWidthTime ;1
-    GOTO PulseSpaceTime ;0
-
-Hx11:
-    MOVLW 0xAA ;170
-    MOVWF PR2_PulseWidth
-    MOVLW 0xB7 ;183
-    MOVWF PR2_PulseSpace
-    BTFSC PulseSelect, 0
-    GOTO PulseWidthTime ;1
-    GOTO PulseSpaceTime ;0
-
-Hx12:
-    MOVLW 0xB4 ;180
-    MOVWF PR2_PulseWidth
-    MOVLW 0xB6 ;182
-    MOVWF PR2_PulseSpace
-    BTFSC PulseSelect, 0
-    GOTO PulseWidthTime ;1
-    GOTO PulseSpaceTime ;0
-
-Hx13:
-    MOVLW 0xBE ;190
-    MOVWF PR2_PulseWidth
-    MOVLW 0xB5 ;181
-    MOVWF PR2_PulseSpace
-    BTFSC PulseSelect, 0
-    GOTO PulseWidthTime ;1
-    GOTO PulseSpaceTime ;0
-
-Hx14:
-    MOVLW 0xC8 ;200
-    MOVWF PR2_PulseWidth
-    MOVLW 0xB4 ;180
-    MOVWF PR2_PulseSpace
-    BTFSC PulseSelect, 0
-    GOTO PulseWidthTime ;1
-    GOTO PulseSpaceTime ;0
-
-Hx15:
-    MOVLW 0xD2 ;210
-    MOVWF PR2_PulseWidth
-    MOVLW 0xB3 ;179
-    MOVWF PR2_PulseSpace
-    BTFSC PulseSelect, 0
-    GOTO PulseWidthTime ;1
-    GOTO PulseSpaceTime ;0
-
-Hx16:
-    MOVLW 0xDC ;220
-    MOVWF PR2_PulseWidth
-    MOVLW 0xB2 ;178
-    MOVWF PR2_PulseSpace
-    BTFSC PulseSelect, 0
-    GOTO PulseWidthTime ;1
-    GOTO PulseSpaceTime ;0
-
-Hx17:
-    MOVLW 0xE6 ;230
-    MOVWF PR2_PulseWidth
-    MOVLW 0xB1 ;177
-    MOVWF PR2_PulseSpace
-    BTFSC PulseSelect, 0
-    GOTO PulseWidthTime ;1
-    GOTO PulseSpaceTime ;0
-
-Hx18:
-    MOVLW 0xF0 ;240
-    MOVWF PR2_PulseWidth
-    MOVLW 0xB0 ;176
-    MOVWF PR2_PulseSpace
-    BTFSC PulseSelect, 0
-    GOTO PulseWidthTime ;1
-    GOTO PulseSpaceTime ;0
-
-Hx19:
-    MOVLW 0xFA ;250
-    MOVWF PR2_PulseWidth
-    MOVLW 0xAF ;175
-    MOVWF PR2_PulseSpace
-    BTFSC PulseSelect, 0
-    GOTO PulseWidthTime ;1
-    GOTO PulseSpaceTime ;0
-
-PulseWidthTime:
-    MOVF PR2_PulseWidth,0
-    BSF STATUS,5
-    MOVWF PR2
-    BCF STATUS,5
-    MOVLW 0x05
-    MOVWF TIMER_COUNT ;x5
-    BSF PORTB,1
-    BCF PulseSelect, 0
-    MOVLW 0x4C ;((T2CON) and 07Fh), 2 and x10
-    MOVWF T2CON
-    GOTO INTERRUPT_END
-
-PulseSpaceTime:
-    MOVF PR2_PulseSpace,0
-    BSF STATUS,5
-    MOVWF PR2
-    BCF STATUS,5
-    MOVLW 0x19 ;x25
-    MOVWF TIMER_COUNT
-    BCF PORTB,1
-    BSF PulseSelect, 0
-    MOVLW 0x25 ;25
-    MOVWF T2CON ;((T2CON) and 07Fh), 2 and x20
-    GOTO INTERRUPT_END
 
 INTERRUPT_END:
     BCF STATUS,5
