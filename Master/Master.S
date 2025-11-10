@@ -126,45 +126,78 @@ Setup:
     STATS_SAVE EQU 0x20
     W_SAVE EQU 0x21
     C_SAVE EQU 0x22
-    TIMER_COUNT EQU 0X23 ;Software counter for overflows
-    PR2_PulseWidth EQU 0x24 ;Time On
-    PR2_PulseSpace EQU 0x25 ;Time Off
-    PulseSelect EQU 0x26 ;Will Help Determine Pulse Width/Space
-    PreRC EQU 0x27 ;Saves RC Data
-    DidHandShake EQU 0x28 ;Did the hand shake?
-    OneTimeADC EQU 0x29 ;This will make sure we only send 2 bits of data
-    DataSend EQU 0x30 ;Send to Slave
+    DataSend EQU 0x23 ;Send to Slave
+    ServoSelect EQU 0x24
  
-    MOVLW 0X00
-    MOVWF TIMER_COUNT
-    CLRF PR2_PulseWidth
-    CLRF PR2_PulseSpace
-    CLRF PulseSelect
-    MOVLW 0x04
-    MOVWF OneTimeADC
-    MOVLW 0X4C
-    MOVWF T2CON
+    CLRF ServoSelect
 
     GOTO MainLoop
 ;-------------------------------------------------------------------------------
 ;Main Program Loop (Loops forever)
 MainLoop:
-    BSF ADCON0,1
-    GOTO ADC_CHECK
+    MOVLW 0x45 ;AN1 Selected. Go is enabled
+    MOVWF ADCON0
+    CALL ADC_CHECK
+    
+    MOVLW 0x49 ;AN2 Selected. Go is enabled
+    MOVWF ADCON0
+    CALL ADC_CHECK
+    GOTO MainLoop
+    
+    MOVLW 0x4D ;AN3 Selected. Go is enabled
+    MOVWF ADCON0
+    CALL ADC_CHECK
+    GOTO MainLoop
+    
     
 ADC_CHECK:
+    INCF ServoSelect
+    BSF ADCON0,1
     BTFSC ADCON0,1
-    GOTO ADC_CHECK    
+    GOTO $-1  
 
     MOVF ADRESH,0
     MOVWF DataSend
-    CLRF SSPBUF ;Clears buffer
-    ;BTFSS PORTB,0 
-    ;GOTO MainLoop
+    
+    MOVF ServoSelect,0
+    XORLW 0x01
+    BTFSC STATUS,2
+    GOTO Servo1
+    
+    MOVF ServoSelect,0
+    XORLW 0x02
+    BTFSC STATUS,2
+    GOTO Servo2
+    
+    MOVF ServoSelect,0
+    XORLW 0x03
+    BTFSC STATUS,2
+    GOTO Servo3
+    
+    Servo3:
+    BCF DataSend,0
+    BCF DataSend,1
+    BSF DataSend,2
+    BCF DataSend,3 ;Remove this byte
+    CLRF ServoSelect
+    GOTO MainSend
+    
+    Servo2:
+    BCF DataSend,0
+    BSF DataSend,1
+    BCF DataSend,2
+    BCF DataSend,3 ;Remove this byte
+    GOTO MainSend
+    
+    Servo1:
+    BSF DataSend,0
+    BCF DataSend,1
+    BCF DataSend,2
+    BCF DataSend,3 ;Remove this byte
     GOTO MainSend
     
 MainSend:
-    
+    CLRF SSPBUF ;Clears buffer
     BSF STATUS,5 ;Bank 1
     BSF SSPCON2,0 ;Enables Start Condition
     BCF STATUS,5 ;Bank 0
@@ -184,22 +217,10 @@ MainSend:
     GOTO $-1
     BSF STATUS,5
     BSF SSPCON2,2 ;Initiates Stop Condition
- 
-    BTFSS SSPCON2,6;Small Testing
-    GOTO Light
-    BCF STATUS,5
-    GOTO Debounce
     
-    Light:
     BCF STATUS,5
-    BSF PORTC,0
-    GOTO Debounce
-    
-    Debounce:
-    BCF STATUS,5
-    BTFSC PORTB,0
-    GOTO Debounce
-    GOTO MainLoop
+    RETURN
+    ;GOTO MainLoop
 ;-------------------
 ;-------------------------------------------------------------------------------
 ;Interrupt Service Routine
