@@ -12,7 +12,7 @@
 # in delta units.  Any other numeric values are decimal.
 %PSECTS
 $build/default/production/_ext/1472/Slave.o
-code CODE 0 8 8 85 2 1
+code CODE 0 8 8 128 2 1
 resetVect CODE 0 0 0 1 2 1
 isrVect CODE 0 4 4 1 2 1
 config CONFIG 4 2007 2007 2 2 1
@@ -30,26 +30,24 @@ BANK1 A0-EF 1
 BANK2 120-16F 1
 CONST 1-3 2
 CONST 5-7 2
-CONST 8D-FFF 2
+CONST 130-FFF 2
 ENTRY 1-3 2
 ENTRY 5-7 2
-ENTRY 8D-FFF 2
+ENTRY 130-FFF 2
 IDLOC 2000-2003 2
 CODE 1-3 2
 CODE 5-7 2
-CODE 8D-FFF 2
+CODE 130-FFF 2
 SFR0 2-7 1
 SFR0 A-F 1
-SFR2 11A-11F 1
-SFR3 180-1EF 1
 COMMON 70-7F 1
 EEDATA 2100-21FF 2
 STRCODE 1-3 2
 STRCODE 5-7 2
-STRCODE 8D-FFF 2
+STRCODE 130-FFF 2
 STRING 1-3 2
 STRING 5-7 2
-STRING 8D-FFF 2
+STRING 130-FFF 2
 # %LINETAB Section
 # This section enumerates the file/line to address mappings.
 # The beginning of the section is indicated by %LINETAB.
@@ -136,68 +134,231 @@ F code CODE >55:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
 4B code CODE >123:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
 4C code CODE >124:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
 4D code CODE >125:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-4E code CODE >140:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-4F code CODE >141:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-50 code CODE >142:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-51 code CODE >143:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-52 code CODE >144:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-53 code CODE >145:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-54 code CODE >146:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-55 code CODE >147:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-56 code CODE >148:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-57 code CODE >149:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-58 code CODE >151:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-59 code CODE >155:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-5A code CODE >156:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-5B code CODE >157:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-5C code CODE >159:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-5D code CODE >160:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-5E code CODE >161:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-5F code CODE >162:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-60 code CODE >163:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-61 code CODE >164:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-63 code CODE >165:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-64 code CODE >166:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-65 code CODE >167:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-66 code CODE >169:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-67 code CODE >170:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-68 code CODE >176:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-69 code CODE >177:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-6A code CODE >178:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-6B code CODE >181:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-6C code CODE >183:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-6D code CODE >184:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-6E code CODE >185:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-6F code CODE >186:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-70 code CODE >187:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-71 code CODE >188:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-72 code CODE >189:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-73 code CODE >190:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-74 code CODE >191:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-75 code CODE >192:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-76 code CODE >193:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-77 code CODE >194:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-78 code CODE >195:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-79 code CODE >196:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-7A code CODE >197:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-7B code CODE >200:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-7C code CODE >201:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-7D code CODE >202:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-7E code CODE >203:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-7F code CODE >204:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-80 code CODE >207:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-81 code CODE >208:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-82 code CODE >209:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-83 code CODE >210:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-84 code CODE >211:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-85 code CODE >212:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-86 code CODE >215:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-87 code CODE >216:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-88 code CODE >217:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-89 code CODE >220:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-8A code CODE >221:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-8B code CODE >222:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
-8C code CODE >224:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+4E code CODE >138:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+4F code CODE >139:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+50 code CODE >140:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+51 code CODE >141:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+52 code CODE >142:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+53 code CODE >143:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+54 code CODE >144:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+55 code CODE >145:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+56 code CODE >147:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+57 code CODE >163:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+58 code CODE >164:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+59 code CODE >170:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+5A code CODE >171:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+5B code CODE >172:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+5C code CODE >174:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+5D code CODE >176:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+5E code CODE >177:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+5F code CODE >178:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+60 code CODE >181:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+61 code CODE >182:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+62 code CODE >183:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+63 code CODE >184:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+64 code CODE >185:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+65 code CODE >190:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+66 code CODE >191:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+67 code CODE >192:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+68 code CODE >193:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+6A code CODE >194:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+6B code CODE >195:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+6C code CODE >196:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+6D code CODE >198:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+6E code CODE >203:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+6F code CODE >204:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+70 code CODE >205:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+71 code CODE >206:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+72 code CODE >207:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+73 code CODE >208:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+74 code CODE >209:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+75 code CODE >210:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+76 code CODE >211:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+77 code CODE >214:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+78 code CODE >215:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+79 code CODE >216:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+7A code CODE >217:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+7B code CODE >218:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+7C code CODE >219:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+7D code CODE >220:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+7E code CODE >223:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+7F code CODE >224:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+80 code CODE >225:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+81 code CODE >226:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+82 code CODE >227:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+83 code CODE >230:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+84 code CODE >231:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+85 code CODE >232:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+86 code CODE >235:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+87 code CODE >236:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+88 code CODE >237:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+89 code CODE >240:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+8A code CODE >241:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+8B code CODE >242:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+8C code CODE >243:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+8D code CODE >244:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+8E code CODE >247:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+8F code CODE >248:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+90 code CODE >249:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+91 code CODE >252:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+92 code CODE >253:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+93 code CODE >254:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+94 code CODE >258:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+95 code CODE >259:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+96 code CODE >260:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+97 code CODE >261:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+98 code CODE >262:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+99 code CODE >263:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+9A code CODE >264:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+9B code CODE >267:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+9C code CODE >268:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+9D code CODE >269:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+9E code CODE >270:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+9F code CODE >271:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+A0 code CODE >272:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+A1 code CODE >273:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+A2 code CODE >276:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+A3 code CODE >277:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+A4 code CODE >278:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+A5 code CODE >279:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+A6 code CODE >280:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+A7 code CODE >281:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+A8 code CODE >282:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+A9 code CODE >285:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+AA code CODE >286:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+AB code CODE >287:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+AC code CODE >288:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+AD code CODE >289:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+AE code CODE >290:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+AF code CODE >291:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+B0 code CODE >294:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+B1 code CODE >295:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+B2 code CODE >296:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+B3 code CODE >297:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+B4 code CODE >298:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+B5 code CODE >299:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+B6 code CODE >300:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+B7 code CODE >303:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+B8 code CODE >304:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+B9 code CODE >305:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+BA code CODE >306:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+BB code CODE >307:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+BC code CODE >308:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+BD code CODE >309:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+BE code CODE >312:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+BF code CODE >313:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+C0 code CODE >314:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+C1 code CODE >315:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+C2 code CODE >316:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+C3 code CODE >317:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+C4 code CODE >318:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+C5 code CODE >321:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+C6 code CODE >322:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+C7 code CODE >323:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+C8 code CODE >324:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+C9 code CODE >325:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+CA code CODE >326:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+CB code CODE >327:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+CC code CODE >330:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+CD code CODE >331:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+CE code CODE >332:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+CF code CODE >333:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+D0 code CODE >334:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+D1 code CODE >335:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+D2 code CODE >336:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+D3 code CODE >339:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+D4 code CODE >340:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+D5 code CODE >341:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+D6 code CODE >342:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+D7 code CODE >343:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+D8 code CODE >344:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+D9 code CODE >345:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+DA code CODE >348:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+DB code CODE >349:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+DC code CODE >350:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+DD code CODE >351:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+DE code CODE >352:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+DF code CODE >353:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+E0 code CODE >354:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+E1 code CODE >357:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+E2 code CODE >358:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+E3 code CODE >359:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+E4 code CODE >360:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+E5 code CODE >361:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+E6 code CODE >362:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+E7 code CODE >363:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+E8 code CODE >366:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+E9 code CODE >367:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+EA code CODE >368:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+EB code CODE >369:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+EC code CODE >370:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+ED code CODE >371:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+EE code CODE >372:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+EF code CODE >375:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+F0 code CODE >376:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+F1 code CODE >377:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+F2 code CODE >378:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+F3 code CODE >379:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+F4 code CODE >380:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+F5 code CODE >381:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+F6 code CODE >384:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+F7 code CODE >385:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+F8 code CODE >386:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+F9 code CODE >387:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+FA code CODE >388:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+FB code CODE >389:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+FC code CODE >390:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+FD code CODE >393:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+FE code CODE >394:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+FF code CODE >395:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+100 code CODE >396:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+101 code CODE >397:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+102 code CODE >398:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+103 code CODE >399:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+104 code CODE >402:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+105 code CODE >403:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+106 code CODE >404:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+107 code CODE >405:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+108 code CODE >406:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+109 code CODE >407:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+10A code CODE >409:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+10B code CODE >410:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+10C code CODE >411:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+10D code CODE >412:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+10E code CODE >413:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+10F code CODE >414:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+110 code CODE >416:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+111 code CODE >417:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+112 code CODE >418:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+113 code CODE >419:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+114 code CODE >422:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+115 code CODE >423:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+116 code CODE >424:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+117 code CODE >425:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+118 code CODE >426:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+119 code CODE >427:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+11A code CODE >429:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+11B code CODE >430:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+11C code CODE >431:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+11D code CODE >432:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+11E code CODE >433:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+11F code CODE >434:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+120 code CODE >436:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+121 code CODE >437:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+122 code CODE >438:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+123 code CODE >439:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+124 code CODE >444:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+125 code CODE >445:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+126 code CODE >446:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+127 code CODE >447:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+128 code CODE >448:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+129 code CODE >449:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+12A code CODE >450:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+12B code CODE >451:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+12C code CODE >454:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+12D code CODE >455:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+12E code CODE >456:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
+12F code CODE >458:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
 # %SYMTAB Section
 # An enumeration of all symbols in the program.
 # The beginning of the section is indicated by %SYMTAB.
@@ -210,24 +371,24 @@ F code CODE >55:C:\Users\there\MPLABXProjects\LAB11\Slave/Slave.S
 # was defined in a psect then <psect> will be "-". File-name
 # is the name of the object file in which the symbol was defined.
 %SYMTAB
-__Hspace_0 11A 0 ABS 0 - -
+__Hspace_0 260 0 ABS 0 - -
 __Hspace_1 0 0 ABS 0 - -
 __Hspace_3 0 0 ABS 0 - -
 __Hspace_4 4010 0 ABS 0 - -
 __HisrVect A 0 CODE 0 isrVect -
-__Hudata_bank0 11A 0 ABS 0 udata_bank0 -
-__Hudata_bank1 11A 0 ABS 0 udata_bank1 -
-__Hudata_bank2 11A 0 ABS 0 udata_bank2 -
+__Hudata_bank0 260 0 ABS 0 udata_bank0 -
+__Hudata_bank1 260 0 ABS 0 udata_bank1 -
+__Hudata_bank2 260 0 ABS 0 udata_bank2 -
 __L__absolute__ 0 0 ABS 0 __absolute__ -
-__Hedata 11A 0 ABS 0 edata -
-__Hudata 11A 0 ABS 0 udata -
+__Hedata 260 0 ABS 0 edata -
+__Hudata 260 0 ABS 0 udata -
 __Hconfig 4012 0 CONFIG 4 config -
-__Ledata 11A 0 ABS 0 edata -
-__Ludata 11A 0 ABS 0 udata -
-__Hcode 11A 0 CODE 0 code -
-__Hdata 11A 0 ABS 0 data -
+__Ledata 260 0 ABS 0 edata -
+__Ludata 260 0 ABS 0 udata -
+__Hcode 260 0 CODE 0 code -
+__Hdata 260 0 ABS 0 data -
 __Lcode 10 0 CODE 0 code -
-__Ldata 11A 0 ABS 0 data -
+__Ldata 260 0 ABS 0 data -
 __S0 0 0 ABS 0 - -
 __S1 0 0 ABS 0 - -
 __S3 0 0 ABS 0 - -
@@ -238,13 +399,13 @@ __Lspace_3 0 0 ABS 0 - -
 __Lspace_4 0 0 ABS 0 - -
 __LisrVect 8 0 CODE 0 isrVect -
 __HresetVect 2 0 CODE 0 resetVect -
-__Ludata_bank0 11A 0 ABS 0 udata_bank0 -
-__Ludata_bank1 11A 0 ABS 0 udata_bank1 -
-__Ludata_bank2 11A 0 ABS 0 udata_bank2 -
+__Ludata_bank0 260 0 ABS 0 udata_bank0 -
+__Ludata_bank1 260 0 ABS 0 udata_bank1 -
+__Ludata_bank2 260 0 ABS 0 udata_bank2 -
 __H__absolute__ 0 0 ABS 0 __absolute__ -
 __LresetVect 0 0 CODE 0 resetVect -
-__Hudata_shr 11A 0 ABS 0 udata_shr -
-__Ludata_shr 11A 0 ABS 0 udata_shr -
+__Hudata_shr 260 0 ABS 0 udata_shr -
+__Ludata_shr 260 0 ABS 0 udata_shr -
 # %SPLITSTAB Section
 # This section enumerates all the psect splits performed by the assembler.
 # The beginning of the section is indicated by %SPLITSTAB.
@@ -269,7 +430,7 @@ __Ludata_shr 11A 0 ABS 0 udata_shr -
 # and size are in units of delta. The file address is in units of bytes.
 # All other numeric quantities are in decimal.
 %SEGMENTS
-code 0 8 10 85 2
+code 0 8 10 128 2
 resetVect 0 0 0 1 2
 isrVect 0 4 8 1 2
 # %NOTES Section

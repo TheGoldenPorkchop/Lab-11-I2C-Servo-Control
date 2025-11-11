@@ -175,25 +175,22 @@ ADC_CHECK:
     GOTO Servo3
     
     Servo3:
-    BCF DataSend,0
-    BCF DataSend,1
-    BSF DataSend,2
-    BCF DataSend,3 ;Remove this byte
+    BCF DataSend,0 ;0
+    BCF DataSend,1 ;0
+    BSF DataSend,2 ;1
     CLRF ServoSelect
     GOTO MainSend
     
     Servo2:
-    BCF DataSend,0
-    BSF DataSend,1
-    BCF DataSend,2
-    BCF DataSend,3 ;Remove this byte
+    BCF DataSend,0 ;0
+    BSF DataSend,1 ;1
+    BCF DataSend,2 ;0
     GOTO MainSend
     
     Servo1:
-    BSF DataSend,0
-    BCF DataSend,1
-    BCF DataSend,2
-    BCF DataSend,3 ;Remove this byte
+    BSF DataSend,0 ;1
+    BCF DataSend,1 ;0
+    BCF DataSend,2 ;0
     GOTO MainSend
     
 MainSend:

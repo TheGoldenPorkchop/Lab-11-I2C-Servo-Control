@@ -47,7 +47,7 @@ Setup:
     ;Bank 3 (for ANSELH)
     BSF STATUS, 5 ; Go to Bank 3
     BSF STATUS, 6 ; Go to Bank 3
-    MOVLW 0x02 ;AN1 is analog input (pin 3)
+    MOVLW 0x02 ;AN1 is analog input (pins 3)
     MOVWF ANSEL
     CLRF ANSELH; 13:8 are digital inputs
     CLRF OPTION_REG
@@ -81,7 +81,7 @@ Setup:
     MOVWF TRISB ;The bits moved in make PortB all outputs
     MOVLW 0x18
     MOVWF TRISC ;ALL outputs
-    MOVLW 0X08 ;02 22
+    MOVLW 0X0E ;02 22
     MOVWF PIE1
     MOVLW 0X88
     MOVWF PR2 ;Timer 2 stuff
@@ -99,7 +99,7 @@ Setup:
     BCF STATUS, 6 ; Go to Bank 0
     MOVLW 0x45 ;AN1 Selected. Go is enabled. A
     MOVWF ADCON0
-    MOVLW 0X00 ;C0
+    MOVLW 0XC0 ;C0
     MOVWF INTCON ;Controls interrupts (GIE=1, RBIE=1)
     CLRF PIR1
     CLRF CCP1CON ; Disables PWM
@@ -132,41 +132,35 @@ Setup:
     PR2_PulseWidth EQU 0x24 ;Time On
     PR2_PulseSpace EQU 0x25 ;Time Off
     PulseSelect EQU 0x26 ;Will Help Determine Pulse Width/Space
-    PreRC EQU 0x27 ;Saves RC Data
-    DidHandShake EQU 0x28 ;Did the hand shake?
-    OneTimeADC EQU 0x29 ;This will make sure we only send 2 bits of data
-    RECEIVED_DATA EQU 0x30 ; Temp
+    ServoSelect EQU 0x27 ;Determines the servo
+    RECEIVED_DATA EQU 0x28 ; Temp
  
     MOVLW 0X00
     MOVWF TIMER_COUNT
     CLRF PR2_PulseWidth
     CLRF PR2_PulseSpace
     CLRF PulseSelect
-    MOVLW 0x04
-    MOVWF OneTimeADC
     CLRF RECEIVED_DATA
-    MOVLW 0X4C
+    MOVLW 0X06
     MOVWF T2CON
 
     GOTO MainLoop
 ;-------------------------------------------------------------------------------
 ;Main Program Loop (Loops forever)
 MainLoop:
+    
+    ;BTFSS PIR1,3
+    ;GOTO $-1
+    ;MOVF SSPBUF,0
+    ;MOVWF RECEIVED_DATA
+    ;CLRF SSPBUF
+    ;BANKSEL SSPSTAT
+    ;BCF SSPSTAT,0
+    ;BCF STATUS,5
+    ;BCF STATUS,6
+    
+    ;BCF PIR1,3
     NOP
-    MOVF RECEIVED_DATA,0
-    MOVWF PORTB
-    
-    BTFSS PIR1,3
-    GOTO $-1
-    MOVF SSPBUF,0
-    MOVWF RECEIVED_DATA
-    CLRF SSPBUF
-    BANKSEL SSPSTAT
-    BCF SSPSTAT,0
-    BCF STATUS,5
-    BCF STATUS,6
-    
-    BCF PIR1,3
     GOTO MainLoop
     
 ;-------------------
@@ -177,44 +171,282 @@ Interrupt:
     MOVF STATUS, 0
     MOVWF STATS_SAVE
     
-    ;BSF PORTB, 0 ; Debug: Toggle RC0 on ISR entry (confirms interrupts fire)
-    NOP
-    ;BCF PORTC, 0
-    BTFSS PIR1, 3 ; SSPIF? (Bank 0)
-    GOTO CHECK_BCL
-    BCF PIR1, 3 ; Clear SSPIF
-    BSF STATUS, 5 ; Bank 1 for SSPSTAT/SSPOV/WCOL
-    BCF STATUS, 6
-    BTFSC SSPSTAT, 4 ; Fix: Check SSPOV=1? (receive overflow ? NACK cause)
-    CLRF SSPSTAT ; Clear SSPOV/WCOL (forces ACK on next)
-    BTFSC SSPSTAT, 7 ; Check WCOL=1? (write collision)
-    CLRF SSPSTAT ; Clear it
-    BTFSC SSPSTAT, 2 ; D/A=1? (data phase)
-    GOTO READ_DATA
-    BCF STATUS, 5 ; Back to Bank 0
-    BCF STATUS, 6
-    MOVF SSPBUF, W ; Read address to clear BF (enables data ACK)
-    GOTO INTERRUPT_END
-   
-READ_DATA:
-    BCF STATUS, 5 ; Bank 0
-    BCF STATUS, 6
-    MOVF SSPBUF, 0 ; Read data ? clears BF ? auto-ACK
+    CLRF INTCON
+    
+    BTFSS PIR1,3 ;RC or Timer?
+    GOTO TimerCountCheck ;Timer
+    GOTO GrabData
+    
+TimerCountCheck:
+    DECFSZ TIMER_COUNT,F
+    GOTO INTERRUPT_END ; If counter not zero, exit
+    BTFSC PulseSelect,0
+    GOTO PulseWidthTime ;1
+    GOTO PulseSpaceTime ;0
+    
+GrabData:
+    MOVF SSPBUF,0
     MOVWF RECEIVED_DATA
+    CLRF SSPBUF
+    BANKSEL SSPSTAT
+    BCF SSPSTAT,0
+    BCF STATUS,5
+    BCF STATUS,6
+    
+    GOTO PWMSelect
+    
+    
+PWMSelect:
+    ;SEARCHING FOR THE RIGHT BITS
+    BTFSC RECEIVED_DATA,7
+    GOTO Bx1UUU
+    BTFSC RECEIVED_DATA,6
+    GOTO Bx01UU
+    BTFSC RECEIVED_DATA,5
+    GOTO Bx001U
+    BTFSC RECEIVED_DATA,4
+    GOTO Bx0001 ;Full Register
+    GOTO Bx0000 ;Full Register
+    
+Bx1UUU:
+    BTFSC RECEIVED_DATA,6
+    GOTO Bx11UU
+    BTFSC RECEIVED_DATA,5
+    GOTO Bx101U
+    BTFSC RECEIVED_DATA,4
+    GOTO Bx1001 ;Full Register
+    GOTO Bx1000 ;Full Register
+    
+Bx11UU:
+    BTFSC RECEIVED_DATA,5
+    GOTO Bx111U
+    BTFSC RECEIVED_DATA,4
+    GOTO Bx1101 ;Full Register
+    GOTO Bx1100 ;Full Register
+    
+Bx101U:
+    BTFSC RECEIVED_DATA,4
+    GOTO Bx1011 ;Full Register
+    GOTO Bx1010 ;Full Register
+    
+Bx111U:
+    BTFSC RECEIVED_DATA,4
+    GOTO Bx1111 ;Full Register
+    GOTO Bx1110 ;Full Register
+    
+Bx01UU:
+    BTFSC RECEIVED_DATA,5
+    GOTO Bx011U
+    BTFSC RECEIVED_DATA,4
+    GOTO Bx0101 ;Full Register
+    GOTO Bx0100 ;Full Register
+    
+Bx011U:
+    BTFSC RECEIVED_DATA,4
+    GOTO Bx0111 ;Full Register
+    GOTO Bx0110 ;Full Register
+    
+Bx001U:
+    BTFSC RECEIVED_DATA,4
+    GOTO Bx0011 ;Full Register
+    GOTO Bx0010 ;Full Register
+    
+;SETTING THE RIGHGT TIMES FOR THE SELECTED BITS
+Bx0000:
+    MOVLW 0x32 ;50
+    MOVWF PR2_PulseWidth
+    MOVLW 0xC3 ;195
+    MOVWF PR2_PulseSpace    
+    BTFSC PulseSelect, 0
+    GOTO PulseWidthTime ;1
+    GOTO PulseSpaceTime ;0
+    
+Bx0001:
+    MOVLW 0x3C ;60
+    MOVWF PR2_PulseWidth
+    MOVLW 0xC2 ;194
+    MOVWF PR2_PulseSpace    
+    BTFSC PulseSelect, 0
+    GOTO PulseWidthTime ;1
+    GOTO PulseSpaceTime ;0
+    
+Bx0010:
+    MOVLW 0x46 ;70
+    MOVWF PR2_PulseWidth
+    MOVLW 0xC1 ;193
+    MOVWF PR2_PulseSpace    
+    BTFSC PulseSelect, 0
+    GOTO PulseWidthTime ;1
+    GOTO PulseSpaceTime ;0
+    
+Bx0011:
+    MOVLW 0x50 ;80
+    MOVWF PR2_PulseWidth
+    MOVLW 0xC0 ;192
+    MOVWF PR2_PulseSpace    
+    BTFSC PulseSelect, 0
+    GOTO PulseWidthTime ;1
+    GOTO PulseSpaceTime ;0
+    
+Bx0100:
+    MOVLW 0x5A ;80
+    MOVWF PR2_PulseWidth
+    MOVLW 0xBF ;191
+    MOVWF PR2_PulseSpace    
+    BTFSC PulseSelect, 0
+    GOTO PulseWidthTime ;1
+    GOTO PulseSpaceTime ;0
+
+Bx0101:
+    MOVLW 0x64 ;100
+    MOVWF PR2_PulseWidth
+    MOVLW 0xBE ;190
+    MOVWF PR2_PulseSpace    
+    BTFSC PulseSelect, 0
+    GOTO PulseWidthTime ;1
+    GOTO PulseSpaceTime ;0
+    
+Bx0110:
+    MOVLW 0x6E ;110
+    MOVWF PR2_PulseWidth
+    MOVLW 0xBD ;189
+    MOVWF PR2_PulseSpace    
+    BTFSC PulseSelect, 0
+    GOTO PulseWidthTime ;1
+    GOTO PulseSpaceTime ;0
+    
+Bx0111:
+    MOVLW 0x78 ;120
+    MOVWF PR2_PulseWidth
+    MOVLW 0xBC ;188
+    MOVWF PR2_PulseSpace    
+    BTFSC PulseSelect, 0
+    GOTO PulseWidthTime ;1
+    GOTO PulseSpaceTime ;0
+    
+Bx1000:
+    MOVLW 0x82 ;130
+    MOVWF PR2_PulseWidth
+    MOVLW 0xBB ;187
+    MOVWF PR2_PulseSpace    
+    BTFSC PulseSelect, 0
+    GOTO PulseWidthTime ;1
+    GOTO PulseSpaceTime ;0
+    
+Bx1001:
+    MOVLW 0x8C ;140
+    MOVWF PR2_PulseWidth
+    MOVLW 0xBA ;186
+    MOVWF PR2_PulseSpace    
+    BTFSC PulseSelect, 0
+    GOTO PulseWidthTime ;1
+    GOTO PulseSpaceTime ;0
+
+Bx1010:
+    MOVLW 0x96 ;150
+    MOVWF PR2_PulseWidth
+    MOVLW 0xB9 ;185
+    MOVWF PR2_PulseSpace    
+    BTFSC PulseSelect, 0
+    GOTO PulseWidthTime ;1
+    GOTO PulseSpaceTime ;0
+    
+Bx1011:
+    MOVLW 0xA0 ;160
+    MOVWF PR2_PulseWidth
+    MOVLW 0xB8 ;184
+    MOVWF PR2_PulseSpace    
+    BTFSC PulseSelect, 0
+    GOTO PulseWidthTime ;1
+    GOTO PulseSpaceTime ;0
+    
+Bx1100:
+    MOVLW 0xAA ;170
+    MOVWF PR2_PulseWidth
+    MOVLW 0xB7 ;183
+    MOVWF PR2_PulseSpace    
+    BTFSC PulseSelect, 0
+    GOTO PulseWidthTime ;1
+    GOTO PulseSpaceTime ;0
+    
+Bx1101:
+    MOVLW 0xB4 ;180
+    MOVWF PR2_PulseWidth
+    MOVLW 0xB6 ;182
+    MOVWF PR2_PulseSpace    
+    BTFSC PulseSelect, 0
+    GOTO PulseWidthTime ;1
+    GOTO PulseSpaceTime ;0
+    
+Bx1110:
+    MOVLW 0xBE ;190
+    MOVWF PR2_PulseWidth
+    MOVLW 0xB5 ;181
+    MOVWF PR2_PulseSpace    
+    BTFSC PulseSelect, 0
+    GOTO PulseWidthTime ;1
+    GOTO PulseSpaceTime ;0
+    
+Bx1111:
+    MOVLW 0xC8 ;200
+    MOVWF PR2_PulseWidth
+    MOVLW 0xB4 ;180
+    MOVWF PR2_PulseSpace  
+    BTFSC PulseSelect, 0
+    GOTO PulseWidthTime ;1
+    GOTO PulseSpaceTime ;0
+    
+PulseWidthTime:
+    MOVF PR2_PulseWidth,0
+    BSF STATUS,5
+    MOVWF PR2
+    BCF STATUS,5
+    MOVLW 0x01
+    MOVWF TIMER_COUNT
+    
+    BTFSC RECEIVED_DATA,0
+    BSF PORTB,1
+    BTFSC RECEIVED_DATA,1
+    BSF PORTB,2
+    BTFSC RECEIVED_DATA,2
+    BSF PORTB,3
+    
+    BCF PulseSelect, 0
+    MOVLW 0x4C
+    MOVWF T2CON
     GOTO INTERRUPT_END
-   
-CHECK_BCL:
-    BTFSS PIR2, 3 ; BCLIF?
+    
+PulseSpaceTime:
+    MOVF PR2_PulseSpace,0
+    BSF STATUS,5
+    MOVWF PR2
+    BCF STATUS,5
+    MOVLW 0x05
+    MOVWF TIMER_COUNT
+    
+    BTFSC RECEIVED_DATA,0
+    BCF PORTB,1
+    BTFSC RECEIVED_DATA,1
+    BCF PORTB,2
+    BTFSC RECEIVED_DATA,2
+    BCF PORTB,3
+
+    BSF PulseSelect, 0
+    MOVLW 0x25
+    MOVWF T2CON
     GOTO INTERRUPT_END
-    BCF PIR2, 3
-    BCF SSPCON, 5 ; Reset MSSP on collision
-    BSF SSPCON, 5
-    GOTO INTERRUPT_END
+    
+    
     
 INTERRUPT_END:
     BCF STATUS,5
     BCF PIR1,1 ;Clears TMR2 to PR2 Interupt Flag
     BSF PIE1,2
+    BSF PIE1,3
+    BCF PIR1,3
+    CLRF TMR2 ;Clears TMR2
+    MOVLW 0XC0
+    MOVWF INTCON
     
     ;Load the W stuff
     MOVF STATS_SAVE,0
