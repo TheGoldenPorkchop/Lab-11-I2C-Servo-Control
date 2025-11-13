@@ -2512,21 +2512,27 @@ Interrupt:
     MOVWF W_SAVE
     MOVF STATUS, 0
     MOVWF STATS_SAVE
-    CLRF INTCON
 
     BTFSC PIR1,1
     GOTO Timer2
     BTFSC PIR1,3
-    BCF PIR1,3 ;Comms
-    GOTO INTERRUPT_END ;???
+    GOTO Erm
+    GOTO Niether
+
+    Niether:
+    MOVLW 0x04 ;bit 2
+    XORWF PORTB,1
+    GOTO INTERRUPT_END
 
     Timer2:
+    MOVLW 0x02 ;bit 1
+    XORWF PORTB,1
     DECFSZ TIMER_COUNT,F
     GOTO INTERRUPT_END ; If counter not zero, exit
-
-    MOVF ServoSelect,0
-    XORLW 0x01
-    BTFSC STATUS,2
+    ;GOTO INTERRUPT_END ; If counter not zero, exit
+    ;MOVF ServoSelect,0
+    ;XORLW 0x01
+    ;BTFSC STATUS,2
     GOTO Servo1
 
     MOVF ServoSelect,0
@@ -2538,36 +2544,23 @@ Interrupt:
 Servo1:
     MOVF Servo1_DATA,0
     MOVWF CurrentServo_DATA
-
-    BTFSC PulseSelect,1
-    BSF PulseSelect,0 ;1 PW
-    BTFSS PulseSelect,1
-    BCF PulseSelect,0 ;0 PS
-
     GOTO PWMSelect
 
 Servo2:
     MOVF Servo2_DATA,0
     MOVWF CurrentServo_DATA
-
-    BTFSC PulseSelect,2
-    BSF PulseSelect,0 ;1 PW
-    BTFSS PulseSelect,2
-    BCF PulseSelect,0 ;0 PS
-
     GOTO PWMSelect
 
 Servo3:
     MOVF Servo3_DATA,0
     MOVWF CurrentServo_DATA
-
-    BTFSC PulseSelect,3
-    BSF PulseSelect,0 ;1 PW
-    BTFSS PulseSelect,3
-    BCF PulseSelect,0 ;0 PS
-
     GOTO PWMSelect
 
+Erm:
+    MOVLW 0x01 ;bit0
+    XORWF PORTB,1
+    GOTO INTERRUPT_END
+    GOTO INTERRUPT_END
 TimerCountCheck:
     DECFSZ TIMER_COUNT,F
     GOTO INTERRUPT_END ; If counter not zero, exit
@@ -2815,34 +2808,8 @@ PulseWidthTime:
     MOVLW 0x01
     MOVWF TIMER_COUNT
 
-    MOVF ServoSelect,0
-    XORLW 0x01
-    BTFSC STATUS,2
-    BSF PORTB,1
-    MOVF ServoSelect,0
-    XORLW 0x01
-    BTFSC STATUS,2
-    BCF PulseSelect,1
-
-    MOVF ServoSelect,0
-    XORLW 0x02
-    BTFSC STATUS,2
-    BSF PORTB,2
-    MOVF ServoSelect,0
-    XORLW 0x02
-    BTFSC STATUS,2
-    BCF PulseSelect,2
-
-    MOVF ServoSelect,0
-    XORLW 0x03
-    BTFSC STATUS,2
-    BSF PORTB,3
-    MOVF ServoSelect,0
-    XORLW 0x03
-    BTFSC STATUS,2
-    BCF PulseSelect,3
-
-    ;BCF PulseSelect, 0
+    ;BSF PORTB,1
+    BCF PulseSelect, 0
     MOVLW 0x4C
     MOVWF T2CON
     GOTO INTERRUPT_END
@@ -2855,40 +2822,26 @@ PulseSpaceTime:
     MOVLW 0x05
     MOVWF TIMER_COUNT
 
-    MOVF ServoSelect,0
-    XORLW 0x01
-    BTFSC STATUS,2
-    BCF PORTB,1
-    MOVF ServoSelect,0
-    XORLW 0x01
-    BTFSC STATUS,2
-    BSF PulseSelect,1
+    ;MOVF ServoSelect,0
+    ;XORLW 0x01
+    ;BTFSC STATUS,2
 
-    MOVF ServoSelect,0
-    XORLW 0x02
-    BTFSC STATUS,2
-    BCF PORTB,2
-    MOVF ServoSelect,0
-    XORLW 0x02
-    BTFSC STATUS,2
-    BSF PulseSelect,2
+    ;BSF PORTB,1
 
-    MOVF ServoSelect,0
-    XORLW 0x03
-    BTFSC STATUS,2
-    BCF PORTB,3
-    MOVF ServoSelect,0
-    XORLW 0x03
-    BTFSC STATUS,2
-    BSF PulseSelect,3
-    MOVF ServoSelect,0
-    XORLW 0x03
-    BTFSC STATUS,2
-    CLRF ServoSelect
+    ;MOVF ServoSelect,0
+    ;XORLW 0x02
+    ;BTFSC STATUS,2
+    ;BCF PORTB,2
 
-    INCF ServoSelect
+    ;MOVF ServoSelect,0
+    ;XORLW 0x03
+    ;BTFSC STATUS,2
+    ;CLRF ServoSelect
+    ;BCF PORTB,3
 
-    ;BSF PulseSelect, 0
+    ;INCF ServoSelect
+
+    BSF PulseSelect, 0
     MOVLW 0x25
     MOVWF T2CON
     GOTO INTERRUPT_END
@@ -2898,14 +2851,8 @@ INTERRUPT_END:
     BCF PIR1,1 ;Clears TMR2 to PR2 Interupt Flag
     CLRF TMR2 ;Clears TMR2
 
-    MOVLW 0xC0 ;somehow, this breaks communications
-    MOVWF INTCON
-
-    ;MOVLW 0x08
-    ;XORWF PORTB,1
-    ;MOVLW 0xC0
-    ;MOVWF INTCON
-
+    MOVLW 0x08
+    XORWF PORTB,1
     ;Load the W stuff
     MOVF STATS_SAVE,0
     MOVWF STATUS

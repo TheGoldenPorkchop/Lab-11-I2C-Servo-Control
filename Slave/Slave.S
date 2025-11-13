@@ -83,6 +83,7 @@ Setup:
     MOVWF TRISC ;ALL outputs
     MOVLW 0X02 ;02 22
     MOVWF PIE1
+    BCF PIE1,3
     MOVLW 0X88
     MOVWF PR2 ;Timer 2 stuff
     MOVLW 0x80
@@ -139,8 +140,8 @@ Setup:
     Servo1_DATA EQU 0x29 ; Temp
     Servo2_DATA EQU 0x30 ; Temp
     Servo3_DATA EQU 0x31 ; Temp
-    PreventOverwrite EQU 0x32 ;?
-    CurrentServo_DATA EQU 0x33 ;
+    CurrentServo_DATA EQU 0x32 ;
+    DidFinish EQU 0x33 ;Prevents Overwriting
  
     MOVLW 0X00
     MOVWF TIMER_COUNT
@@ -148,7 +149,9 @@ Setup:
     CLRF PR2_PulseSpace
     CLRF PulseSelect
     CLRF RECEIVED_DATA
-    MOVLW 0X06
+    MOVLW 0x01
+    MOVWF ServoSelect
+    MOVLW 0X4C
     MOVWF T2CON
 
     GOTO MainLoop
@@ -184,7 +187,7 @@ MainLoop:
 
     BTFSC RECEIVED_DATA,2
     MOVWF Servo3_DATA
-    
+
     GOTO MainLoop
     
 ;-------------------
@@ -194,22 +197,24 @@ Interrupt:
     MOVWF W_SAVE
     MOVF STATUS, 0
     MOVWF STATS_SAVE
+    CLRF INTCON
     
+    BTFSC PIR1,1
+    GOTO Timer2
     BTFSC PIR1,3
-    GOTO INTERRUPT_END
-    
+    BCF PIR1,3 ;Comms
+    GOTO INTERRUPT_END ;???
+
+    Timer2:
     DECFSZ TIMER_COUNT,F
     GOTO INTERRUPT_END ; If counter not zero, exit
-    
-    INCF PreventOverwrite
-    
-    
-    MOVF PreventOverwrite,0
+
+    MOVF ServoSelect,0
     XORLW 0x01
     BTFSC STATUS,2
     GOTO Servo1
     
-    MOVF PreventOverwrite,0
+    MOVF ServoSelect,0
     XORLW 0x02
     BTFSC STATUS,2
     GOTO Servo2
@@ -218,16 +223,34 @@ Interrupt:
 Servo1:
     MOVF Servo1_DATA,0
     MOVWF CurrentServo_DATA
+    
+    BTFSC PulseSelect,1
+    BSF PulseSelect,0 ;1 PW
+    BTFSS PulseSelect,1
+    BCF PulseSelect,0 ;0 PS
+    
     GOTO PWMSelect
     
 Servo2:
     MOVF Servo2_DATA,0
     MOVWF CurrentServo_DATA
+    
+    BTFSC PulseSelect,2
+    BSF PulseSelect,0 ;1 PW
+    BTFSS PulseSelect,2
+    BCF PulseSelect,0 ;0 PS
+    
     GOTO PWMSelect
     
 Servo3:
     MOVF Servo3_DATA,0
     MOVWF CurrentServo_DATA
+    
+    BTFSC PulseSelect,3
+    BSF PulseSelect,0 ;1 PW
+    BTFSS PulseSelect,3
+    BCF PulseSelect,0 ;0 PS
+    
     GOTO PWMSelect
     
 TimerCountCheck:
@@ -477,22 +500,34 @@ PulseWidthTime:
     MOVLW 0x01
     MOVWF TIMER_COUNT
     
-    MOVF PreventOverwrite,0
+    MOVF ServoSelect,0
     XORLW 0x01
     BTFSC STATUS,2
     BSF PORTB,1
+    MOVF ServoSelect,0
+    XORLW 0x01
+    BTFSC STATUS,2
+    BCF PulseSelect,1
     
-    MOVF PreventOverwrite,0
+    MOVF ServoSelect,0
     XORLW 0x02
     BTFSC STATUS,2
     BSF PORTB,2
+    MOVF ServoSelect,0
+    XORLW 0x02
+    BTFSC STATUS,2
+    BCF PulseSelect,2
     
-    MOVF PreventOverwrite,0
+    MOVF ServoSelect,0
     XORLW 0x03
     BTFSC STATUS,2
     BSF PORTB,3
+    MOVF ServoSelect,0
+    XORLW 0x03
+    BTFSC STATUS,2
+    BCF PulseSelect,3
     
-    BCF PulseSelect, 0
+    ;BCF PulseSelect, 0
     MOVLW 0x4C
     MOVWF T2CON
     GOTO INTERRUPT_END
@@ -505,23 +540,40 @@ PulseSpaceTime:
     MOVLW 0x05
     MOVWF TIMER_COUNT
     
-    MOVF PreventOverwrite,0
+    MOVF ServoSelect,0
     XORLW 0x01
     BTFSC STATUS,2
     BCF PORTB,1
+    MOVF ServoSelect,0
+    XORLW 0x01
+    BTFSC STATUS,2
+    BSF PulseSelect,1
     
-    MOVF PreventOverwrite,0
+    MOVF ServoSelect,0
     XORLW 0x02
     BTFSC STATUS,2
     BCF PORTB,2
+    MOVF ServoSelect,0
+    XORLW 0x02
+    BTFSC STATUS,2
+    BSF PulseSelect,2
     
-    MOVF PreventOverwrite,0
+    MOVF ServoSelect,0
     XORLW 0x03
     BTFSC STATUS,2
-    CLRF PreventOverwrite
     BCF PORTB,3
+    MOVF ServoSelect,0
+    XORLW 0x03
+    BTFSC STATUS,2
+    BSF PulseSelect,3
+    MOVF ServoSelect,0
+    XORLW 0x03
+    BTFSC STATUS,2
+    CLRF ServoSelect
+    
+    INCF ServoSelect
 
-    BSF PulseSelect, 0
+    ;BSF PulseSelect, 0
     MOVLW 0x25
     MOVWF T2CON
     GOTO INTERRUPT_END
@@ -530,10 +582,19 @@ INTERRUPT_END:
     BCF STATUS,5
     BCF PIR1,1 ;Clears TMR2 to PR2 Interupt Flag
     CLRF TMR2 ;Clears TMR2
+    
+    MOVLW 0xC0 ;somehow, this breaks communications
+    MOVWF INTCON
+    
+    ;MOVLW 0x08
+    ;XORWF PORTB,1
+    ;MOVLW 0xC0
+    ;MOVWF INTCON
+    
     ;Load the W stuff
     MOVF STATS_SAVE,0
     MOVWF STATUS
     MOVF W_SAVE,0
-
+    
     RETFIE
 END ;End of code. This is required
