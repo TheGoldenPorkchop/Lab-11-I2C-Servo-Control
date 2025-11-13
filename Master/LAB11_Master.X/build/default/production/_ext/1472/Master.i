@@ -2362,7 +2362,7 @@ Setup:
     ;Bank 3 (for ANSELH)
     BSF STATUS, 5 ; Go to Bank 3
     BSF STATUS, 6 ; Go to Bank 3
-    MOVLW 0x02 ;AN1 is analog input (pin 3)
+    MOVLW 0x0E ;AN1 is analog input (pin 3)
     MOVWF ANSEL
     CLRF ANSELH; 13:8 are digital inputs
     CLRF OPTION_REG
@@ -2390,7 +2390,7 @@ Setup:
     CLRF SPBRGH
     MOVLW 0x00
     MOVWF TXSTA
-    MOVLW 0X02
+    MOVLW 0X0F
     MOVWF TRISA
     MOVLW 0XFF ;Put bits into register
     MOVWF TRISB ;The bits moved in make PortB all inputs
@@ -2443,6 +2443,7 @@ Setup:
     C_SAVE EQU 0x22
     DataSend EQU 0x23 ;Send to Slave
     ServoSelect EQU 0x24
+    Count1 EQU 0x25
 
     CLRF ServoSelect
 
@@ -2454,16 +2455,22 @@ MainLoop:
     MOVWF ADCON0
     CALL ADC_CHECK
 
+    CALL Delay
+
     MOVLW 0x49 ;AN2 Selected. Go is enabled
     MOVWF ADCON0
     CALL ADC_CHECK
-    GOTO MainLoop
+    ;GOTO MainLoop
+
+    CALL Delay
 
     MOVLW 0x4D ;AN3 Selected. Go is enabled
     MOVWF ADCON0
     CALL ADC_CHECK
-    GOTO MainLoop
+    ;GOTO MainLoop
 
+    CALL Delay
+    GOTO MainLoop
 
 ADC_CHECK:
     INCF ServoSelect
@@ -2490,25 +2497,22 @@ ADC_CHECK:
     GOTO Servo3
 
     Servo3:
-    BCF DataSend,0
-    BCF DataSend,1
-    BSF DataSend,2
-    BCF DataSend,3 ;Remove this byte
+    BCF DataSend,0 ;0
+    BCF DataSend,1 ;0
+    BSF DataSend,2 ;1
     CLRF ServoSelect
     GOTO MainSend
 
     Servo2:
-    BCF DataSend,0
-    BSF DataSend,1
-    BCF DataSend,2
-    BCF DataSend,3 ;Remove this byte
+    BCF DataSend,0 ;0
+    BSF DataSend,1 ;1
+    BCF DataSend,2 ;0
     GOTO MainSend
 
     Servo1:
-    BSF DataSend,0
-    BCF DataSend,1
-    BCF DataSend,2
-    BCF DataSend,3 ;Remove this byte
+    BSF DataSend,0 ;1
+    BCF DataSend,1 ;0
+    BCF DataSend,2 ;0
     GOTO MainSend
 
 MainSend:
@@ -2535,6 +2539,15 @@ MainSend:
 
     BCF STATUS,5
     RETURN
+
+Delay:
+    MOVLW 0xFF
+    MOVWF Count1
+    DECFSZ Count1
+    GOTO $-1
+    NOP
+    RETURN
+
     ;GOTO MainLoop
 ;-------------------
 ;-------------------------------------------------------------------------------
