@@ -2362,7 +2362,7 @@ Setup:
     ;Bank 3 (for ANSELH)
     BSF STATUS, 5 ; Go to Bank 3
     BSF STATUS, 6 ; Go to Bank 3
-    MOVLW 0x02 ;AN1 is analog input (pins 3)
+    MOVLW 0x00 ;AN1 is analog input (pins 3)
     MOVWF ANSEL
     CLRF ANSELH; 13:8 are digital inputs
     CLRF OPTION_REG
@@ -2385,11 +2385,11 @@ Setup:
     CLRF OPTION_REG ; Clears OPTION_REG (enables pull-ups globally, etc.)
     CLRF PSTRCON ;Disable PWM
     CLRF PCON ;Cleared power control register
-    MOVLW 0x81
-    MOVWF SPBRG
-    CLRF SPBRGH
-    MOVLW 0x00
-    MOVWF TXSTA
+    ;MOVLW 0x81
+    ;MOVWF SPBRG
+    ;CLRF SPBRGH
+    ;MOVLW 0x00
+    ;MOVWF TXSTA
     MOVLW 0X02
     MOVWF TRISA
     MOVLW 0X00 ;Put bits into register
@@ -2401,7 +2401,7 @@ Setup:
     BCF PIE1,3
     MOVLW 0X88
     MOVWF PR2 ;Timer 2 stuff
-    MOVLW 0x80
+    MOVLW 0x00
     MOVWF ADCON1
     MOVLW 0x00 ;Input Data sampled at the end of data output time and Standard Speed
     MOVWF SSPSTAT
@@ -2413,8 +2413,8 @@ Setup:
     ;Bank 0 (for INTCON, ports, peripherals)
     BCF STATUS, 5 ;Go to Bank 0
     BCF STATUS, 6 ; Go to Bank 0
-    MOVLW 0x00 ;AN1 Selected. Go is enabled. A
-    MOVWF ADCON0
+    ;MOVLW 0x00 ;AN1 Selected. Go is enabled. A
+    ;MOVWF ADCON0
     MOVLW 0XC0 ;C0
     MOVWF INTCON ;Controls interrupts (((INTCON) and 07Fh), 7=1, ((INTCON) and 07Fh), 3=1)
     CLRF PIR1
@@ -2424,8 +2424,8 @@ Setup:
     CLRF PORTB ;Clears the bits in PortB
     MOVLW 0x18
     MOVWF PORTC
-    MOVLW 0x00 ;Disables Serial Comms
-    MOVWF RCSTA
+    ;MOVLW 0x00 ;Disables Serial Comms
+    ;MOVWF RCSTA
 
     CLRF CCP2CON ;Disables the second PWM function
     ;CLRF RCSTA ;Turns off the control register
@@ -2457,6 +2457,7 @@ Setup:
     Servo3_DATA EQU 0x31 ; Temp
     CurrentServo_DATA EQU 0x32 ;
     DidFinish EQU 0x33 ;Prevents Overwriting
+    Count1 EQU 0x34
 
     MOVLW 0X00
     MOVWF TIMER_COUNT
@@ -2503,6 +2504,12 @@ MainLoop:
     BTFSC RECEIVED_DATA,2
     MOVWF Servo3_DATA
 
+    MOVLW 0x68 ;58
+    MOVWF Count1
+    DECFSZ Count1
+    GOTO $-1
+    NOP
+
     GOTO MainLoop
 
 ;-------------------
@@ -2517,7 +2524,20 @@ Interrupt:
     BTFSC PIR1,1
     GOTO Timer2
     BTFSC PIR1,3
+    GOTO Comms
+    GOTO SecretThirdThing
+
+    Comms:
+    ;MOVF PORTB,0
+    ;XORLW 0x40
+    ;MOVWF PORTB
     BCF PIR1,3 ;Comms
+    GOTO INTERRUPT_END ;???
+
+    SecretThirdThing:
+    ;MOVF PORTB,0
+    ;XORLW 0x20
+    ;MOVWF PORTB
     GOTO INTERRUPT_END ;???
 
     Timer2:
@@ -2568,74 +2588,104 @@ Servo3:
 
     GOTO PWMSelect
 
-TimerCountCheck:
-    DECFSZ TIMER_COUNT,F
-    GOTO INTERRUPT_END ; If counter not zero, exit
-    BTFSC PulseSelect,0
-    GOTO PulseWidthTime ;1
-    GOTO PulseSpaceTime ;0
-
 PWMSelect:
     ;SEARCHING FOR THE RIGHT BITS
-    BTFSC CurrentServo_DATA,7
-    GOTO Bx1UUU
-    BTFSC CurrentServo_DATA,6
-    GOTO Bx01UU
-    BTFSC CurrentServo_DATA,5
-    GOTO Bx001U
-    BTFSC CurrentServo_DATA,4
-    GOTO Bx0001 ;Full Register
-    GOTO Bx0000 ;Full Register
+    MOVLW 0xF0
+    ANDWF CurrentServo_DATA,1
+    SWAPF CurrentServo_DATA
 
-Bx1UUU:
-    BTFSC CurrentServo_DATA,6
-    GOTO Bx11UU
-    BTFSC CurrentServo_DATA,5
-    GOTO Bx101U
-    BTFSC CurrentServo_DATA,4
-    GOTO Bx1001 ;Full Register
-    GOTO Bx1000 ;Full Register
+    MOVF CurrentServo_DATA,0
+    XORLW 0x00
+    BTFSC STATUS,2
+    GOTO Bx0000
 
-Bx11UU:
-    BTFSC CurrentServo_DATA,5
-    GOTO Bx111U
-    BTFSC CurrentServo_DATA,4
-    GOTO Bx1101 ;Full Register
-    GOTO Bx1100 ;Full Register
+    MOVF CurrentServo_DATA,0
+    XORLW 0x01
+    BTFSC STATUS,2
+    GOTO Bx0001
 
-Bx101U:
-    BTFSC CurrentServo_DATA,4
-    GOTO Bx1011 ;Full Register
-    GOTO Bx1010 ;Full Register
+    MOVF CurrentServo_DATA,0
+    XORLW 0x02
+    BTFSC STATUS,2
+    GOTO Bx0010
 
-Bx111U:
-    BTFSC CurrentServo_DATA,4
-    GOTO Bx1111 ;Full Register
-    GOTO Bx1110 ;Full Register
+    MOVF CurrentServo_DATA,0
+    XORLW 0x03
+    BTFSC STATUS,2
+    GOTO Bx0011
 
-Bx01UU:
-    BTFSC CurrentServo_DATA,5
-    GOTO Bx011U
-    BTFSC CurrentServo_DATA,4
-    GOTO Bx0101 ;Full Register
-    GOTO Bx0100 ;Full Register
+    MOVF CurrentServo_DATA,0
+    XORLW 0x04
+    BTFSC STATUS,2
+    GOTO Bx0100
 
-Bx011U:
-    BTFSC CurrentServo_DATA,4
-    GOTO Bx0111 ;Full Register
-    GOTO Bx0110 ;Full Register
+    MOVF CurrentServo_DATA,0
+    XORLW 0x05
+    BTFSC STATUS,2
+    GOTO Bx0101
 
-Bx001U:
-    BTFSC CurrentServo_DATA,4
-    GOTO Bx0011 ;Full Register
-    GOTO Bx0010 ;Full Register
+    MOVF CurrentServo_DATA,0
+    XORLW 0x06
+    BTFSC STATUS,2
+    GOTO Bx0110
+
+    MOVF CurrentServo_DATA,0
+    XORLW 0x07
+    BTFSC STATUS,2
+    GOTO Bx0111
+
+    MOVF CurrentServo_DATA,0
+    XORLW 0x08
+    BTFSC STATUS,2
+    GOTO Bx1000
+
+    MOVF CurrentServo_DATA,0
+    XORLW 0x09
+    BTFSC STATUS,2
+    GOTO Bx1001
+
+    MOVF CurrentServo_DATA,0
+    XORLW 0x0A
+    BTFSC STATUS,2
+    GOTO Bx1010
+
+    MOVF CurrentServo_DATA,0
+    XORLW 0x0B
+    BTFSC STATUS,2
+    GOTO Bx1011
+
+    MOVF CurrentServo_DATA,0
+    XORLW 0x0C
+    BTFSC STATUS,2
+    GOTO Bx1100
+
+    MOVF CurrentServo_DATA,0
+    XORLW 0x0D
+    BTFSC STATUS,2
+    GOTO Bx1101
+
+    MOVF CurrentServo_DATA,0
+    XORLW 0x0E
+    BTFSC STATUS,2
+    GOTO Bx1110
+
+    MOVF CurrentServo_DATA,0
+    XORLW 0x0F
+    BTFSC STATUS,2
+    GOTO Bx1111
+
+    ;MOVF PORTB,0
+    ;XORLW 0x10 ;somehow no matches
+    ;MOVWF PORTB
+
+    GOTO INTERRUPT_END
 
 ;SETTING THE RIGHGT TIMES FOR THE SELECTED BITS
+    ;Control Z to this point
 Bx0000:
     MOVLW 0x32 ;50
     MOVWF PR2_PulseWidth
-
-    MOVLW 0xC3 ;195
+    MOVLW 0x41 ;195 changing it to 65
     MOVWF PR2_PulseSpace
 
     BTFSC PulseSelect, 0
@@ -2643,10 +2693,9 @@ Bx0000:
     GOTO PulseSpaceTime ;0
 
 Bx0001:
-    MOVLW 0x3C ;60
+    MOVLW 0x3C ;70 ;;64
     MOVWF PR2_PulseWidth
-
-    MOVLW 0xC2 ;194
+    MOVLW 0x41 ;194
     MOVWF PR2_PulseSpace
 
     BTFSC PulseSelect, 0
@@ -2654,10 +2703,9 @@ Bx0001:
     GOTO PulseSpaceTime ;0
 
 Bx0010:
-    MOVLW 0x46 ;70
+    MOVLW 0x46 ;80 ;;96
     MOVWF PR2_PulseWidth
-
-    MOVLW 0xC1 ;193
+    MOVLW 0x41 ;193
     MOVWF PR2_PulseSpace
 
     BTFSC PulseSelect, 0
@@ -2665,10 +2713,9 @@ Bx0010:
     GOTO PulseSpaceTime ;0
 
 Bx0011:
-    MOVLW 0x50 ;80
+    MOVLW 0x50 ;90 ;;C8
     MOVWF PR2_PulseWidth
-
-    MOVLW 0xC0 ;192
+    MOVLW 0x41 ;192
     MOVWF PR2_PulseSpace
 
     BTFSC PulseSelect, 0
@@ -2676,10 +2723,9 @@ Bx0011:
     GOTO PulseSpaceTime ;0
 
 Bx0100:
-    MOVLW 0x5A ;80
+    MOVLW 0x5A ;100 ;FA
     MOVWF PR2_PulseWidth
-
-    MOVLW 0xBF ;191
+    MOVLW 0x41 ;191
     MOVWF PR2_PulseSpace
 
     BTFSC PulseSelect, 0
@@ -2687,10 +2733,9 @@ Bx0100:
     GOTO PulseSpaceTime ;0
 
 Bx0101:
-    MOVLW 0x64 ;100
+    MOVLW 0x64 ;110 ;;C8
     MOVWF PR2_PulseWidth
-
-    MOVLW 0xBE ;190
+    MOVLW 0x41 ;190
     MOVWF PR2_PulseSpace
 
     BTFSC PulseSelect, 0
@@ -2698,10 +2743,9 @@ Bx0101:
     GOTO PulseSpaceTime ;0
 
 Bx0110:
-    MOVLW 0x6E ;110
+    MOVLW 0x6E ;120 ;;96
     MOVWF PR2_PulseWidth
-
-    MOVLW 0xBD ;189
+    MOVLW 0x41 ;189
     MOVWF PR2_PulseSpace
 
     BTFSC PulseSelect, 0
@@ -2709,10 +2753,9 @@ Bx0110:
     GOTO PulseSpaceTime ;0
 
 Bx0111:
-    MOVLW 0x78 ;120
+    MOVLW 0x78 ; 82 ;64
     MOVWF PR2_PulseWidth
-
-    MOVLW 0xBC ;188
+    MOVLW 0x41 ;188
     MOVWF PR2_PulseSpace
 
     BTFSC PulseSelect, 0
@@ -2720,10 +2763,9 @@ Bx0111:
     GOTO PulseSpaceTime ;0
 
 Bx1000:
-    MOVLW 0x82 ;130
+    MOVLW 0x82 ;140 82
     MOVWF PR2_PulseWidth
-
-    MOVLW 0xBB ;187
+    MOVLW 0x41 ;187
     MOVWF PR2_PulseSpace
 
     BTFSC PulseSelect, 0
@@ -2731,10 +2773,9 @@ Bx1000:
     GOTO PulseSpaceTime ;0
 
 Bx1001:
-    MOVLW 0x8C ;140
+    MOVLW 0x8C ;140 8C
     MOVWF PR2_PulseWidth
-
-    MOVLW 0xBA ;186
+    MOVLW 0x41 ;186
     MOVWF PR2_PulseSpace
 
     BTFSC PulseSelect, 0
@@ -2744,8 +2785,7 @@ Bx1001:
 Bx1010:
     MOVLW 0x96 ;150
     MOVWF PR2_PulseWidth
-
-    MOVLW 0xB9 ;185
+    MOVLW 0x41 ;185
     MOVWF PR2_PulseSpace
 
     BTFSC PulseSelect, 0
@@ -2755,8 +2795,7 @@ Bx1010:
 Bx1011:
     MOVLW 0xA0 ;160
     MOVWF PR2_PulseWidth
-
-    MOVLW 0xB8 ;184
+    MOVLW 0x41 ;184
     MOVWF PR2_PulseSpace
 
     BTFSC PulseSelect, 0
@@ -2766,8 +2805,7 @@ Bx1011:
 Bx1100:
     MOVLW 0xAA ;170
     MOVWF PR2_PulseWidth
-
-    MOVLW 0xB7 ;183
+    MOVLW 0x41 ;183
     MOVWF PR2_PulseSpace
 
     BTFSC PulseSelect, 0
@@ -2777,8 +2815,7 @@ Bx1100:
 Bx1101:
     MOVLW 0xB4 ;180
     MOVWF PR2_PulseWidth
-
-    MOVLW 0xB6 ;182
+    MOVLW 0x41 ;182
     MOVWF PR2_PulseSpace
 
     BTFSC PulseSelect, 0
@@ -2788,8 +2825,7 @@ Bx1101:
 Bx1110:
     MOVLW 0xBE ;190
     MOVWF PR2_PulseWidth
-
-    MOVLW 0xB5 ;181
+    MOVLW 0x41 ;181
     MOVWF PR2_PulseSpace
 
     BTFSC PulseSelect, 0
@@ -2799,8 +2835,7 @@ Bx1110:
 Bx1111:
     MOVLW 0xC8 ;200
     MOVWF PR2_PulseWidth
-
-    MOVLW 0xB4 ;180
+    MOVLW 0x41 ;180
     MOVWF PR2_PulseSpace
 
     BTFSC PulseSelect, 0
@@ -2827,7 +2862,7 @@ PulseWidthTime:
     MOVF ServoSelect,0
     XORLW 0x02
     BTFSC STATUS,2
-    BSF PORTB,2
+    BSF PORTB,3
     MOVF ServoSelect,0
     XORLW 0x02
     BTFSC STATUS,2
@@ -2836,13 +2871,13 @@ PulseWidthTime:
     MOVF ServoSelect,0
     XORLW 0x03
     BTFSC STATUS,2
-    BSF PORTB,3
+    BSF PORTB,5
     MOVF ServoSelect,0
     XORLW 0x03
     BTFSC STATUS,2
     BCF PulseSelect,3
 
-    ;BCF PulseSelect, 0
+    CLRF TMR2 ;Clears TMR2
     MOVLW 0x4C
     MOVWF T2CON
     GOTO INTERRUPT_END
@@ -2867,7 +2902,7 @@ PulseSpaceTime:
     MOVF ServoSelect,0
     XORLW 0x02
     BTFSC STATUS,2
-    BCF PORTB,2
+    BCF PORTB,3
     MOVF ServoSelect,0
     XORLW 0x02
     BTFSC STATUS,2
@@ -2876,7 +2911,7 @@ PulseSpaceTime:
     MOVF ServoSelect,0
     XORLW 0x03
     BTFSC STATUS,2
-    BCF PORTB,3
+    BCF PORTB,5
     MOVF ServoSelect,0
     XORLW 0x03
     BTFSC STATUS,2
@@ -2887,8 +2922,8 @@ PulseSpaceTime:
     CLRF ServoSelect
 
     INCF ServoSelect
+    CLRF TMR2 ;Clears TMR2
 
-    ;BSF PulseSelect, 0
     MOVLW 0x25
     MOVWF T2CON
     GOTO INTERRUPT_END
@@ -2896,15 +2931,9 @@ PulseSpaceTime:
 INTERRUPT_END:
     BCF STATUS,5
     BCF PIR1,1 ;Clears TMR2 to PR2 Interupt Flag
-    CLRF TMR2 ;Clears TMR2
 
-    MOVLW 0xC0 ;somehow, this breaks communications
+    MOVLW 0xC0 ;Reenable interrupts
     MOVWF INTCON
-
-    ;MOVLW 0x08
-    ;XORWF PORTB,1
-    ;MOVLW 0xC0
-    ;MOVWF INTCON
 
     ;Load the W stuff
     MOVF STATS_SAVE,0
